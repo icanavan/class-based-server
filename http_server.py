@@ -54,8 +54,10 @@ class HttpServer():
 
         Then you would return "/images/sample_1.png"
         """
-
-        return "TODO: COMPLETE THIS"  # TODO
+        string = os.path.abspath(request)
+        newpath = string.replace(os.sep,'/')
+        list1 = newpath.split(' ')
+        return list1[1]
 
 
     @staticmethod
@@ -87,8 +89,10 @@ class HttpServer():
 
         if path.endswith('/'):
             return b"text/plain"
-        else:
-            return b"TODO: FINISH THE REST OF THESE CASES"  # TODO
+        elif path.endswith('.html'):
+            return b"text/html"
+        elif path.endswith('.png'):
+            return b"image/png"
 
     @staticmethod
     def get_content(path):
@@ -119,12 +123,28 @@ class HttpServer():
             get_content('/') -> images/, a_web_page.html, make_type.py,..."
             # Returns a directory listing of `webroot/`
 
-            get_content('/a_page_that_doesnt_exist.html') 
+            get_content('/a_page_that_doesnt_exist.html')
             # The file `webroot/a_page_that_doesnt_exist.html`) doesn't exist,
             # so this should raise a FileNotFoundError.
         """
+        head_tail = os.path.split(path)
+        lhead_tail = list(head_tail)
+        lhead_tail[0] = "webroot"
+        lhead_tail[1] = path
+        shead_tail = ''.join(lhead_tail)
+        bhead_tail = str.encode(shead_tail)
+        if os.path.isdir(path) == True:
+            return os.listdir(bhead_tail)
 
-        return b"Not implemented!"  # TODO: Complete this function.
+        if os.path.isfile(path) == True:
+            with open(bhead_tail, "rb", encoding='utf-8') as f:
+                text = f.read()
+                return text
+
+        if path not in os.listdir(lhead_tail[1]):
+
+            raise FileNotFoundError
+  # TODO: Complete this function.
 
     def __init__(self, port):
         self.port = port
@@ -155,11 +175,11 @@ class HttpServer():
 
                         if '\r\n\r\n' in request:
                             break
-                    
+
                     print("Request received:\n{}\n\n".format(request))
 
                     path = self.get_path(request)
-                    
+
                     try:
                         body = self.get_content(path)
                         mimetype = self.get_mimetype(path)
@@ -180,7 +200,7 @@ class HttpServer():
                 except:
                     traceback.print_exc()
                 finally:
-                    conn.close() 
+                    conn.close()
 
         except KeyboardInterrupt:
             sock.close()
@@ -193,7 +213,7 @@ if __name__ == '__main__':
     try:
         port = int(sys.argv[1])
     except IndexError:
-        port = 10000 
+        port = 10000
 
     server = HttpServer(port)
     server.serve()
