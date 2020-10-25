@@ -127,23 +127,18 @@ class HttpServer():
             # The file `webroot/a_page_that_doesnt_exist.html`) doesn't exist,
             # so this should raise a FileNotFoundError.
         """
-        head_tail = os.path.split(path)
-        lhead_tail = list(head_tail)
-        lhead_tail[0] = "webroot"
-        lhead_tail[1] = path
-        shead_tail = ''.join(lhead_tail)
-        bhead_tail = str.encode(shead_tail)
+        split_path = os.path.split(path)
+        path = os.path.join("webroot", *split_path)
+        
         if os.path.isdir(path) == True:
-            return os.listdir(bhead_tail)
+            return os.listdir(path)
 
         if os.path.isfile(path) == True:
-            with open(bhead_tail, "rb", encoding='utf-8') as f:
+            with open(path, "rb", encoding='utf-8') as f:
                 text = f.read()
                 return text
 
-        if path not in os.listdir(lhead_tail[1]):
-
-            raise FileNotFoundError
+        raise FileNotFoundError
   # TODO: Complete this function.
 
     def __init__(self, port):
